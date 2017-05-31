@@ -6,14 +6,27 @@
 
   <groupId>org.workspace7.camel.component</groupId>
   <artifactId>camel-insecurehttps4</artifactId>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
   <version>1.0-SNAPSHOT</version>
 
-  <name>Camel insecurehttps4 Component</name>
+  <name>Camel:: Component :: Insecure Https4 Component</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
+    <camel.osgi.import>
+      org.apache.camel.component.http4.*,
+      org.apache.camel.util.jsse.*,
+      org.apache.http.conn.ssl.*,
+      *
+    </camel.osgi.import>
+    <camel.osgi.export>org.workspace7.camel.component.*</camel.osgi.export>
+    <camel.osgi.export.service>
+      org.apache.camel.spi.ComponentResolver;component=insecurehttps4
+    </camel.osgi.export.service>
+    <camel.osgi.import.service> org.apache.camel.spi.ComponentResolver;component=http4,
+      org.apache.camel.spi.ComponentResolver;component=https4</camel.osgi.import.service>
   </properties>
 
   <dependencyManagement>
@@ -38,13 +51,6 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
-    </dependency>
-
-    <!-- support camel documentation -->
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>apt</artifactId>
-      <version>2.19.0</version>
     </dependency>
 
     <!-- logging -->
@@ -91,7 +97,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-package-maven-plugin</artifactId>
-        <version>2.19.0</version>
+        <version>2.17.0.redhat-630085</version>
         <executions>
           <execution>
             <id>prepare</id>
@@ -107,23 +113,48 @@
             </goals>
             <phase>prepare-package</phase>
           </execution>
+          <execution>
+            <id>readme</id>
+            <goals>
+              <goal>update-readme</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
         </executions>
       </plugin>
 
-      <!-- to generate the MANIFEST-FILE of the bundle -->
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>${maven-bundle-plugin-version}</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.workspace7.camel.component.camel-insecurehttps4</Bundle-SymbolicName>
-            <Export-Service>org.apache.camel.spi.ComponentResolver;component=insecurehttps4</Export-Service>
+            <Bundle-Name>${project.artifactId}</Bundle-Name>
+            <Export-Package>${camel.osgi.export}</Export-Package>
+            <Import-Package>${camel.osgi.import}</Import-Package>
+            <Import-Service>${camel.osgi.import.service}</Import-Service>
+            <Export-Service>${camel.osgi.export.service}</Export-Service>
+            <Implementation-Title>Workspace7 Camel Components</Implementation-Title>
+            <Implementation-Version>${project.version}</Implementation-Version>
+            <Karaf-Info>Camel;${project.artifactId}=${project.version}</Karaf-Info>
           </instructions>
         </configuration>
+        <executions>
+          <execution>
+            <id>versions</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>cleanVersions</goal>
+            </goals>
+            <configuration>
+              <versions>
+                <camel.osgi.version.clean>${project.version}</camel.osgi.version.clean>
+              </versions>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
-
     </plugins>
   </build>
 
